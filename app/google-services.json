@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "364611779987",
+    "firebase_url": "https://arabic-almanac-hans-wehr.firebaseio.com",
+    "project_id": "arabic-almanac-hans-wehr",
+    "storage_bucket": "arabic-almanac-hans-wehr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364611779987:android:ac97b58d76a9f174",
+        "android_client_info": {
+          "package_name": "com.etjaal.arabicalmanac"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364611779987-1245hadevc2nuocg0qo8d4gtie1s4sie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyYymvR4VfJXCXrmQ8JDGvav5BjI_U48k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

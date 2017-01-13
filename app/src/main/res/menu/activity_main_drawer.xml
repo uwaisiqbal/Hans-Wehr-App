@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_verbForms"
+            android:title="Verb Forms" />
+        <item
+            android:id="@+id/nav_removeAds"
+            android:title="Remove Ads" />
+        <item
+            android:id="@+id/nav_aboutUs"
+            android:title="About Us" />
+
+        <item
+            android:id="@+id/nav_settings"
+            android:title="Settings" />
+
+        <item
+            android:id="@+id/nav_help"
+            android:title="Help and Feedback" />
+    </group>
+</menu>

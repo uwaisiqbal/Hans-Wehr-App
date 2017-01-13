@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <PreferenceCategory android:title="Settings" >
+        <Preference
+            android:summary="Restores any purchases you may have made on your Google account on other devices to this device"
+            android:title="Restore Previous Purchases"
+            android:key="restore_purchases_pref"/>
+        <Preference android:summary="Clears images stored using the local cache (memory) of your phone"
+            android:title="Clear Image Cache"
+            android:key="clear_cache_pref"/>
+        <Preference android:summary="Clears the users search history stored on the device"
+            android:title="Clear Search History"
+            android:key="clear_search_history_pref"/>
+    </PreferenceCategory>
+</PreferenceScreen>
