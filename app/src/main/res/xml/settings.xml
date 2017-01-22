@@ -13,5 +13,9 @@
         <Preference android:summary="Clears the users search history stored on the device"
             android:title="Clear Search History"
             android:key="clear_search_history_pref"/>
+        <CheckBoxPreference android:summary="Enable offline mode so the app can work without an internet connection"
+            android:title="Enable offline mode"
+            android:key="offline_mode_pref"
+            android:defaultValue="false"/>
     </PreferenceCategory>
 </PreferenceScreen>

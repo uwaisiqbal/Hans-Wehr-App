@@ -33,6 +33,8 @@ public class ViewPagerFixed extends android.support.v4.view.ViewPager {
             return super.onInterceptTouchEvent(ev);
         } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            ex.printStackTrace();
         }
         return false;
     }

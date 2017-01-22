@@ -1,11 +1,17 @@
 package com.etjaal.arabicalmanac;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
@@ -35,39 +41,48 @@ public class ImageAdapter extends PagerAdapter {
 
     private Context context;
     private ArrayList<String> dictionaryIndexes;
-    private FirebaseStorage storage;
 
     public ImageAdapter(Context context) {
         this.context = context;
         dictionaryIndexes = new ArrayList<String>();
         parseFileToArrayList();
-        storage = FirebaseStorage.getInstance();
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
+        boolean isOfflineModeEnabled = HansWehrApplication.prefs.getBoolean(HansWehrApplication.offlineModeKey, false);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = layoutInflater.inflate(R.layout.image, container, false);
         final ProgressBar progressBar = (ProgressBar) v.findViewById(R.id.loadingProgressBar);
-        progressBar.setVisibility(View.VISIBLE);
         PhotoView imageView = (PhotoView) v.findViewById(R.id.imageView);
-        String fileName = getFileNameFromIndex(position+1);
-        Log.v("ImageAdapter", fileName);
-        StorageReference storageReference = storage.getReferenceFromUrl("gs://arabic-almanac-hans-wehr.appspot.com");
-        StorageReference pageRef = storageReference.child("hw4").child(fileName + ".png");
-        Log.v("ImageApater", pageRef.getPath());
-        Glide.with(context).using(new FirebaseImageLoader()).load(pageRef).listener(new RequestListener<StorageReference, GlideDrawable>() {
-            @Override
-            public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
-                return false;
-            }
+        if(isOfflineModeEnabled){
+            progressBar.setVisibility(View.GONE);
+            Drawable bmp = new BitmapDrawable(
+                    BitmapFactory.decodeFile(getImagePathForIndex(position+1)));
+            imageView.setImageDrawable(bmp);
+            //imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }else{
+            progressBar.setVisibility(View.VISIBLE);
+            String fileName = getFileNameFromIndex(position+1);
+            Log.v("ImageAdapter", fileName);
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference storageReference = storage.getReferenceFromUrl("gs://arabic-almanac-hans-wehr.appspot.com");
+            StorageReference pageRef = storageReference.child("hw4").child(fileName + ".png");
+            Log.v("ImageApater", pageRef.getPath());
+            Glide.with(context).using(new FirebaseImageLoader()).load(pageRef).listener(new RequestListener<StorageReference, GlideDrawable>() {
+                @Override
+                public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                    return false;
+                }
 
-            @Override
-            public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                progressBar.setVisibility(View.GONE);
-                return false;
-            }
-        }).dontTransform().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                @Override
+                public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    progressBar.setVisibility(View.GONE);
+                    return false;
+                }
+            }).dontTransform().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+            //imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
         container.addView(v);
         return v;
     }
@@ -107,9 +122,6 @@ public class ImageAdapter extends PagerAdapter {
         return  dictionaryIndexes;
     }
 
-    public FirebaseStorage getFirebaseStorage(){
-        return storage;
-    }
     /**
      * Loads the json file located in assests into a json object
      */
@@ -142,6 +154,17 @@ public class ImageAdapter extends PagerAdapter {
         }
         return "hw4" + "-" + indexString;
     }
+
+    public String getImagePathForIndex(int index) {
+        String fileName = getFileNameFromIndex(index);
+        int folder = (int) Math.round(index / 100 - 0.5f);
+        String location = Environment.getExternalStorageDirectory().toString() + "/"
+                + context.getResources().getString(R.string.app_name) + "/" +"img/hw4/"
+                + Integer.toString(folder) + "/" + fileName + ".png";
+        Log.v("location", location);
+        return location;
+    }
+
 }
 
 

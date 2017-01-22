@@ -22,59 +22,42 @@ import java.util.zip.ZipInputStream;
 public class UnzipTask extends AsyncTask<Void,Void,String> {
 
     private Context context;
-    private DownloadActivity activity;
     private ProgressDialog unzipProgressDialog;
     private String path;
-    private Dictionary dictionary;
-    private int groupPosition;
 
-    public UnzipTask(DownloadActivity activity, Context context, Dictionary dictionary, int groupPosition) {
+    public UnzipTask(Context context,ProgressDialog progressDialog) {
         this.context = context;
-        this.dictionary = dictionary;
-        this.activity = activity;
-        this.groupPosition = groupPosition;
+        this.unzipProgressDialog = progressDialog;
         path = Environment.getExternalStorageDirectory().toString() + "/"
                 + context.getResources().getString(R.string.app_name) + "/";
     }
 
     @Override
     protected void onPreExecute() {
-        unzipProgressDialog = new ProgressDialog(context);
-        unzipProgressDialog.setProgressStyle(unzipProgressDialog.STYLE_HORIZONTAL);
-        unzipProgressDialog.setIndeterminate(true);
-        unzipProgressDialog.setTitle("Install in progress ...");
-        unzipProgressDialog.setMessage("Installing " + dictionary.toString());
-        unzipProgressDialog.setProgressNumberFormat(null);
-        unzipProgressDialog.setProgressPercentFormat(null);
-        unzipProgressDialog.setCancelable(false);
         unzipProgressDialog.show();
     }
 
     @Override
     protected String doInBackground(Void... params) {
-        Unzip(path + dictionary.getReference() + ".zip", path);
+        Unzip(path + "hw4.zip", path);
         return null;
     }
 
     @Override
     protected void onPostExecute(String s) {
         unzipProgressDialog.dismiss();
-        Toast.makeText(context, dictionary.toString() + " Installed", Toast.LENGTH_SHORT).show();
-        File file = new File(path, dictionary.getReference() + ".zip");
+        Toast.makeText(HansWehrApplication.getAppContext(), "Offline mode is now enabled", Toast.LENGTH_SHORT).show();
+        File file = new File(path,"hw4.zip");
         file.delete();
         File f = new File(path, ".nomedia");
         if (!f.exists()) {
             boolean created = f.mkdir();
-            Log.d("Main Activity", ".nomedia " + String.valueOf(created));
+            Log.d("Unzip", ".nomedia " + String.valueOf(created));
         }
-        DatabaseQueries databaseQueries = new DatabaseQueries(context);
-        databaseQueries.setDictionaryAsInstalled(dictionary, true);
-        databaseQueries.closeDB();
-        activity.prepareListData(groupPosition);
     }
 
     public static void Unzip(String zipFile, String location) {
-        Log.d("Main Activity", "Unzipping");
+        Log.d("Unzip", "Unzipping");
         int BUFFER_SIZE = 1024;
         int count = 0;
         byte[] buffer = new byte[BUFFER_SIZE];

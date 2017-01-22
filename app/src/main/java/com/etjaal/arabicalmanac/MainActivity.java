@@ -2,6 +2,8 @@ package com.etjaal.arabicalmanac;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -11,10 +13,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.view.GravityCompat;
@@ -55,23 +59,29 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.File;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
     ImageAdapter imageAdapter;
-    ViewPager viewPager;
+    ViewPagerFixed viewPager;
     ListView drawerList;
     SearchView searchView;
     ActionBarDrawerToggle drawerToggle;
     DrawerLayout drawerLayout;
     DrawerRowAdapter drawerRowAdapter;
     AdView adView;
-    boolean removeAdsPurchased = false;
+    boolean removeAdsPurchased;
+    boolean offlineModePurchased;
     Context context;
-    final String[] navArray = {"Verb Forms","Roman Arabic Letters","Tutorial", "Remove Ads","Offline Mode", "About Us", "Settings", "Help and Feedback", "Rate Us", "Donate"};
+    final String[] navArray = {"Verb Forms","Roman Arabic Letters","Tutorial", "Remove Ads", "About Us", "Settings", "Help and Feedback", "Rate Us", "Donate"};
     NetworkChangeReceiver networkChangeReceiver;
     DatabaseReference database;
+    ProgressDialog progressDialog;
+    String downloadUrl = "https://firebasestorage.googleapis.com/v0/b/arabic-almanac-hans-wehr.appspot.com/o/hw4.zip?alt=media&token=67f33cdf-b015-4ae2-97a1-f6751113720d";
+    long downloadId;
+    DownloadManager downloadManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
         context = this;
         database = FirebaseDatabase.getInstance().getReference();
         removeAdsPurchased = HansWehrApplication.prefs.getBoolean(HansWehrApplication.removeAdsKey, false);
+        offlineModePurchased = HansWehrApplication.prefs.getBoolean(HansWehrApplication.offlineModeKey, false);
+        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+
         if(removeAdsPurchased) {
             setContentView(R.layout.main_activity_no_ads);
         }else{
@@ -86,13 +99,15 @@ public class MainActivity extends AppCompatActivity {
             adView = (AdView) findViewById(R.id.adView);
             setupAds();
         }
+
         setupViews();
         setupDrawer();
         handleIntent(getIntent());
+
     }
 
     private void setupDrawer() {
-        int[] icons = {R.drawable.ic_verb_form_icon, R.drawable.ic_roman_letters_icon, R.drawable.ic_help_white_24dp, R.drawable.ic_lock_open_white_24dp,R.drawable.ic_offline_pin_white_24dp,
+        int[] icons = {R.drawable.ic_verb_form_icon, R.drawable.ic_roman_letters_icon, R.drawable.ic_help_white_24dp, R.drawable.ic_lock_open_white_24dp,
                 R.drawable.ic_info_white_24dp,R.drawable.ic_settings_applications_white_24dp, R.drawable.ic_announcement_white_24dp, R.drawable.ic_thumb_up_white_24dp, R.drawable.ic_payment_white_24dp};
         drawerRowAdapter = new DrawerRowAdapter(this, navArray, icons);
 
@@ -144,15 +159,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(networkChangeReceiver);
+        if(!HansWehrApplication.prefs.getBoolean(HansWehrApplication.offlineModeKey,false)) {
+            unregisterReceiver(networkChangeReceiver);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        networkChangeReceiver = new NetworkChangeReceiver();
-        registerReceiver(networkChangeReceiver, filter);
+        if(!HansWehrApplication.prefs.getBoolean(HansWehrApplication.offlineModeKey,false)) {
+            IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+            networkChangeReceiver = new NetworkChangeReceiver();
+            registerReceiver(networkChangeReceiver, filter);
+        }
     }
 
     private void showAboutDialog() {
@@ -174,7 +193,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViews() {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        viewPager = (ViewPager) findViewById(R.id.viewPagerMain);
+        viewPager = (ViewPagerFixed) findViewById(R.id.viewPagerMain);
+        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         imageAdapter = new ImageAdapter(getApplicationContext());
         viewPager.setAdapter(imageAdapter);
         viewPager.setCurrentItem(0);
@@ -229,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showInternetNotConnectedDialog() {
-        //Show Tutorial
+        //Show Internet Connection Dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("No Internet Connection");
         builder.setMessage(Html.fromHtml(getString(R.string.nointernet)));
@@ -412,20 +432,17 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                     break;
-                //Offline Mode
-                case 4:
-                    break;
                 //About us
-                case 5:
+                case 4:
                     showAboutDialog();
                     break;
                 //Settings
-                case 6:
+                case 5:
                     Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
                     startActivity(intent);
                     break;
                 //Help
-                case 7:
+                case 6:
                     Intent email = new Intent(Intent.ACTION_SENDTO, Uri
                             .fromParts("mailto",
                                     "arabicalmanacandroid@gmail.com", null));
@@ -435,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
                             "Choose an Email client :"));
                     break;
                 //Rate Us
-                case 8:
+                case 7:
                     Uri uri = Uri.parse("market://details?id=" + getApplicationContext().getPackageName());
                     Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
                     // To count with Play market backstack, After pressing back button,
@@ -451,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 //Donate
-                case 9:
+                case 8:
                     try {
                         HansWehrApplication.mHelper.launchPurchaseFlow((Activity) context,
                                 HansWehrApplication.SKU_DONATION, 10001, mPurchaseFinishedListener,
@@ -522,7 +539,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 }
 
 

@@ -16,7 +16,7 @@
         you can now access the same information at the luxury of your fingertips. If you\'ve benefited from this app
         then please share it with you friends, leave a review, consider donating to support development or like our <a href="http://facebook.com/hanswehrapp">Facebook page</a> ]]>
     </string>
-    <string name="app_version_name">3.0.1</string>
+    <string name="app_version_name">3.0.3</string>
     <string name="roman_letters">
         <![CDATA[
         <b>Double letters:</b><br><br>
@@ -37,5 +37,5 @@
     </string>
     <string name="tutorial">To search for a word please click on the search icon and enter the root letters
         of the word you would like to search for in Arabic or Roman Arabic. To navigate the dictionary, swipe left and right to turn pages. To zoom into the image pinch or double tap the screen and pan the image by swiping in the desired direction.</string>
-    <string name="nointernet">This app requires an internet connection to load the image files. Please connect to the internet for the image files to be loaded properly.</string>
+    <string name="nointernet">This app requires an internet connection to load the image files. Please connect to the internet for the image files to be loaded properly or enable offline mode in the settings.</string>
 </resources>

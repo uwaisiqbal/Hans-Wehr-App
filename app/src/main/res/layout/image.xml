@@ -4,10 +4,13 @@
     android:id="@+id/relativeLayout">
 
     <uk.co.senab.photoview.PhotoView
-    android:layout_width="match_parent"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        android:id="@+id/imageView"/>
+        android:id="@+id/imageView"
+        android:src="@drawable/ic_search_black_24dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true" />
 
     <ProgressBar
         android:id="@+id/loadingProgressBar"

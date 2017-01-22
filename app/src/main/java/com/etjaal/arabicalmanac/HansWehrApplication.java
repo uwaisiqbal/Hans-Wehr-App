@@ -23,6 +23,7 @@ public class HansWehrApplication extends Application {
     final static String SKU_DONATION = "0";
     final static String SKU_REMOVE_ADS = "hanswehr.removeads";
     static String removeAdsKey = "com.etjaal.arabicalmanac.removeads";
+    static String offlineModeKey = "offline_mode_pref";
     private static Context context;
 
     @Override

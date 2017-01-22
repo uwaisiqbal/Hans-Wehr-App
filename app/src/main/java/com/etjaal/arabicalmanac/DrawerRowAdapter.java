@@ -37,34 +37,6 @@ public class DrawerRowAdapter extends ArrayAdapter<String> {
         return rowView;
     }
 
-    /*@Override
-    public DrawerRowAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.drawer_item_row,parent,false);
-        ViewHolder vhItem = new ViewHolder(v);
-        return vhItem;
-    }
-
-    @Override
-    public void onBindViewHolder(DrawerRowAdapter.ViewHolder holder, int position) {
-        holder.textView.setText(titles[position]);
-        holder.imageView.setImageResource(icons[position]);
-    }
-
-    @Override
-    public int getItemCount() {
-        return titles.length;
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView textView;
-        private ImageView imageView;
-
-        public ViewHolder(View itemView){
-            super(itemView);
-            textView = (TextView) itemView.findViewById(R.id.rowText);
-            imageView = (ImageView) itemView.findViewById(R.id.rowIcon);
-        }
-    }*/
 }
 
 
