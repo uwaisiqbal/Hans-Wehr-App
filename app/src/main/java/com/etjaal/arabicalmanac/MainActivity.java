@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
         removeAdsPurchased = HansWehrApplication.prefs.getBoolean(HansWehrApplication.removeAdsKey, false);
         offlineModePurchased = HansWehrApplication.prefs.getBoolean(HansWehrApplication.offlineModeKey, false);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-
         if(removeAdsPurchased) {
             setContentView(R.layout.main_activity_no_ads);
         }else{

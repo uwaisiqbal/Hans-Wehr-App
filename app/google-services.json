@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "364611779987-j9ntnoi49ohn5qe3aba0q7s9vbuhs6cf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.etjaal.arabicalmanac",
+            "certificate_hash": "efd0cc5dacb017fcd540e15c3ad448d8d5fa2e8e"
+          }
+        },
+        {
+          "client_id": "364611779987-0le0hfkkn1d6til7osq08a1k4epd3qt2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.etjaal.arabicalmanac",
+            "certificate_hash": "c19a42e9c59b4c8f67981dd938afc9c47843ce6e"
+          }
+        },
+        {
           "client_id": "364611779987-1245hadevc2nuocg0qo8d4gtie1s4sie.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +45,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364611779987-1245hadevc2nuocg0qo8d4gtie1s4sie.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

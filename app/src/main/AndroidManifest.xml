@@ -15,6 +15,10 @@
         android:theme="@style/Theme.AppCompat"
         android:name=".HansWehrApplication"
         >
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8841765102895133~2753513600"
+            />
         <provider android:name=".MySuggestionProvider"
             android:authorities="com.etjaal.arabicalmanac.MySuggestionProvider" />
         <activity
