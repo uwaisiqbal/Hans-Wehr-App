@@ -48,6 +48,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.billingclient.api.BillingClient;
 import com.android.vending.billing.IInAppBillingService;
 import com.etjaal.arabicalmanac.util.IabHelper;
 import com.etjaal.arabicalmanac.util.IabResult;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     String downloadUrl = "https://firebasestorage.googleapis.com/v0/b/arabic-almanac-hans-wehr.appspot.com/o/hw4.zip?alt=media&token=67f33cdf-b015-4ae2-97a1-f6751113720d";
     long downloadId;
     DownloadManager downloadManager;
+    private BillingClient mBillingClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
         removeAdsPurchased = HansWehrApplication.prefs.getBoolean(HansWehrApplication.removeAdsKey, false);
         offlineModePurchased = HansWehrApplication.prefs.getBoolean(HansWehrApplication.offlineModeKey, false);
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        mBillingClient = BillingClient.newBuilder(this).setListener(this).build();
+
         if(removeAdsPurchased) {
             setContentView(R.layout.main_activity_no_ads);
         }else{
@@ -385,20 +389,20 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (HansWehrApplication.mHelper == null) return;
-
-        // Pass on the activity result to the helper for handling
-        if (!HansWehrApplication.mHelper.handleActivityResult(requestCode, resultCode, data)) {
-            // not handled, so handle it ourselves (here's where you'd
-            // perform any handling of activity results not related to in-app
-            // billing...
-            super.onActivityResult(requestCode, resultCode, data);
-        } else {
-            Log.d("Billing", "onActivityResult handled by IABUtil.");
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (HansWehrApplication.mHelper == null) return;
+//
+//        // Pass on the activity result to the helper for handling
+//        if (!HansWehrApplication.mHelper.handleActivityResult(requestCode, resultCode, data)) {
+//            // not handled, so handle it ourselves (here's where you'd
+//            // perform any handling of activity results not related to in-app
+//            // billing...
+//            super.onActivityResult(requestCode, resultCode, data);
+//        } else {
+//            Log.d("Billing", "onActivityResult handled by IABUtil.");
+//        }
+//    }
 
     AdapterView.OnItemClickListener mNavigationClickListener = new AdapterView.OnItemClickListener(){
         @Override
@@ -417,19 +421,19 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 //Remove Ads
                 case 3:
-                    if(!removeAdsPurchased){
-                        try {
-                            HansWehrApplication.mHelper.launchPurchaseFlow((Activity) context,
-                                    HansWehrApplication.SKU_REMOVE_ADS, 10001, mPurchaseFinishedListener,
-                                    null);
-                        } catch (IabHelper.IabAsyncInProgressException e) {
-                            e.printStackTrace();
-                        }
-                    }else{
-                        Toast.makeText(getApplicationContext(),
-                                "Ads have already been removed",
-                                Toast.LENGTH_SHORT).show();
-                    }
+//                    if(!removeAdsPurchased){
+//                        try {
+//                            HansWehrApplication.mHelper.launchPurchaseFlow((Activity) context,
+//                                    HansWehrApplication.SKU_REMOVE_ADS, 10001, mPurchaseFinishedListener,
+//                                    null);
+//                        } catch (IabHelper.IabAsyncInProgressException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }else{
+//                        Toast.makeText(getApplicationContext(),
+//                                "Ads have already been removed",
+//                                Toast.LENGTH_SHORT).show();
+//                    }
                     break;
                 //About us
                 case 4:
@@ -468,65 +472,65 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 //Donate
                 case 8:
-                    try {
-                        HansWehrApplication.mHelper.launchPurchaseFlow((Activity) context,
-                                HansWehrApplication.SKU_DONATION, 10001, mPurchaseFinishedListener,
-                                null);
-                    } catch (IabHelper.IabAsyncInProgressException e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        HansWehrApplication.mHelper.launchPurchaseFlow((Activity) context,
+//                                HansWehrApplication.SKU_DONATION, 10001, mPurchaseFinishedListener,
+//                                null);
+//                    } catch (IabHelper.IabAsyncInProgressException e) {
+//                        e.printStackTrace();
+//                    }
                     break;
             }
         }
 
     };
 
-    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
-        public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
-            if (result.isFailure()) {
-                Log.d("Billing", "Error purchasing: " + result);
-                return;
-            }
-
-            if (purchase.getSku().equals(HansWehrApplication.SKU_DONATION)) {
-                // consume the donation and update the UI
-                // Query Purchased Item
-                try {
-                    HansWehrApplication.mHelper.consumeAsync(purchase, mConsumeFinishedListener);
-                } catch (IabHelper.IabAsyncInProgressException e) {
-                    e.printStackTrace();
-                }
-            } else if(purchase.getSku().equals(HansWehrApplication.SKU_REMOVE_ADS)){
-                //Don't consume and remove ads
-                removeAdsPurchased = true;
-                HansWehrApplication.editor.putBoolean(HansWehrApplication.removeAdsKey, removeAdsPurchased);
-                HansWehrApplication.editor.commit();
-                Toast.makeText(getApplicationContext(),
-                        "Ads successfully removed! Restart the application for the changes to take effect.",
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
-
-    IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
-        public void onConsumeFinished(Purchase purchase, IabResult result) {
-            if (purchase.getSku().equals(HansWehrApplication.SKU_DONATION)) {
-                if (result.isSuccess()) {
-                    //donate_pref.setEnabled(true);
-                    Toast.makeText(getApplicationContext(),
-                            "Donation Successful! Thank you for your support.",
-                            Toast.LENGTH_SHORT).show();
-                    Log.v("Billing", "Purchase Successful");
-                } else {
-                    Log.v("Billing", "Purchase Failed");
-                    Toast.makeText(getApplicationContext(),
-                            "Donation Failed! Please try again!",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-
-    };
+//    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
+//        public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
+//            if (result.isFailure()) {
+//                Log.d("Billing", "Error purchasing: " + result);
+//                return;
+//            }
+//
+//            if (purchase.getSku().equals(HansWehrApplication.SKU_DONATION)) {
+//                // consume the donation and update the UI
+//                // Query Purchased Item
+//                try {
+//                    HansWehrApplication.mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+//                } catch (IabHelper.IabAsyncInProgressException e) {
+//                    e.printStackTrace();
+//                }
+//            } else if(purchase.getSku().equals(HansWehrApplication.SKU_REMOVE_ADS)){
+//                //Don't consume and remove ads
+//                removeAdsPurchased = true;
+//                HansWehrApplication.editor.putBoolean(HansWehrApplication.removeAdsKey, removeAdsPurchased);
+//                HansWehrApplication.editor.commit();
+//                Toast.makeText(getApplicationContext(),
+//                        "Ads successfully removed! Restart the application for the changes to take effect.",
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    };
+//
+//    IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
+//        public void onConsumeFinished(Purchase purchase, IabResult result) {
+//            if (purchase.getSku().equals(HansWehrApplication.SKU_DONATION)) {
+//                if (result.isSuccess()) {
+//                    //donate_pref.setEnabled(true);
+//                    Toast.makeText(getApplicationContext(),
+//                            "Donation Successful! Thank you for your support.",
+//                            Toast.LENGTH_SHORT).show();
+//                    Log.v("Billing", "Purchase Successful");
+//                } else {
+//                    Log.v("Billing", "Purchase Failed");
+//                    Toast.makeText(getApplicationContext(),
+//                            "Donation Failed! Please try again!",
+//                            Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        }
+//
+//    };
 
     public class NetworkChangeReceiver extends BroadcastReceiver{
         @Override
