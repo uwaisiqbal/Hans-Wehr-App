@@ -36,6 +36,10 @@
         </activity>
         <activity android:name=".SettingsActivity"
             android:label="Settings"></activity>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8841765102895133~2753513600"
+            />
     </application>
 
 </manifest>
